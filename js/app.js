@@ -1,5 +1,5 @@
-let speed = 20;
-let scale = 0.17; // Image scale (I work on 1080p monitor)
+let speed = 10;
+let scale = 0.10; // Image scale (I work on 1080p monitor)
 let canvas;
 let ctx;
 let logoColor;
