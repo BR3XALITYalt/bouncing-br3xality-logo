@@ -2,6 +2,10 @@
 const speed = 120;
 const scale = 0.10;
 
+// Trail fade. LOWER alpha = LONGER trail.
+// 0.03 = very long ghost. 0.08 = medium. 0.2 = short.
+const fadeAlpha = 0.08;
+
 let canvas;
 let ctx;
 let logoColor = '#ffffff';
@@ -29,6 +33,10 @@ const dvd = {
         dvd.x = Math.random() * Math.max(1, canvas.width - w);
         dvd.y = Math.random() * Math.max(1, canvas.height - h);
 
+        // Paint the canvas black once so the first fade has something to darken.
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         pickColor();
         lastTime = performance.now();
         requestAnimationFrame(update);
@@ -45,9 +53,11 @@ function update(now) {
     const w = dvd.img.width * scale;
     const h = dvd.img.height * scale;
 
-    ctx.fillStyle = '#000';
+    // Fade instead of clear. Old frames dim, new frames draw on top.
+    ctx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Colored block behind the logo. This is what leaves the trail.
     ctx.fillStyle = logoColor;
     ctx.fillRect(dvd.x, dvd.y, w, h);
     ctx.drawImage(dvd.img, dvd.x, dvd.y, w, h);
