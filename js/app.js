@@ -1,19 +1,20 @@
-// Speed in PIXELS PER SECOND. 120 = lazy drift. 400 = normal. 1000 = frantic.
-const speed = 120;
+const RENDER_W = 480;
+const RENDER_H = 270;
+const speed = RENDER_W * 0.12;
 const scale = 0.10;
-
-// Trail fade. LOWER alpha = LONGER trail.
-// 0.03 = very long ghost. 0.08 = medium. 0.2 = short.
-const fadeAlpha = 0.08;
+const fadeAlpha = 0.12;
+const targetFPS = 30;
+const frameInterval = 1000 / targetFPS;
 
 let canvas;
 let ctx;
 let logoColor = '#ffffff';
 let lastTime = 0;
+let lastFrame = 0;
 
 const dvd = {
-    x: 200,
-    y: 300,
+    x: 100,
+    y: 100,
     vx: speed,
     vy: speed * 0.98,
     img: new Image()
@@ -22,23 +23,17 @@ const dvd = {
 (function main() {
     canvas = document.getElementById('tv-screen');
     ctx = canvas.getContext('2d');
+    canvas.width = RENDER_W;
+    canvas.height = RENDER_H;
 
     dvd.img.onload = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
         const w = dvd.img.width * scale;
         const h = dvd.img.height * scale;
-
-        dvd.x = Math.random() * Math.max(1, canvas.width - w);
-        dvd.y = Math.random() * Math.max(1, canvas.height - h);
-
-        // Paint the canvas black once so the first fade has something to darken.
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+        dvd.x = Math.random() * Math.max(1, RENDER_W - w);
+        dvd.y = Math.random() * Math.max(1, RENDER_H - h);
         pickColor();
         lastTime = performance.now();
+        lastFrame = lastTime;
         requestAnimationFrame(update);
     };
 
@@ -47,17 +42,21 @@ const dvd = {
 })();
 
 function update(now) {
-    const dt = (now - lastTime) / 1000; // seconds since last frame
+    requestAnimationFrame(update);
+    if (now - lastFrame < frameInterval) return;
+
+    const dt = (now - lastTime) / 1000;
     lastTime = now;
+    lastFrame = now;
 
     const w = dvd.img.width * scale;
     const h = dvd.img.height * scale;
 
-    // Fade instead of clear. Old frames dim, new frames draw on top.
+    ctx.globalCompositeOperation = 'destination-out';
     ctx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, RENDER_W, RENDER_H);
 
-    // Colored block behind the logo. This is what leaves the trail.
+    ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = logoColor;
     ctx.fillRect(dvd.x, dvd.y, w, h);
     ctx.drawImage(dvd.img, dvd.x, dvd.y, w, h);
@@ -66,12 +65,11 @@ function update(now) {
     dvd.y += dvd.vy * dt;
 
     checkHitBox(w, h);
-    requestAnimationFrame(update);
 }
 
 function checkHitBox(w, h) {
-    if (dvd.x + w >= canvas.width) {
-        dvd.x = canvas.width - w;
+    if (dvd.x + w >= RENDER_W) {
+        dvd.x = RENDER_W - w;
         dvd.vx = -Math.abs(dvd.vx);
         pickColor();
     } else if (dvd.x <= 0) {
@@ -79,9 +77,8 @@ function checkHitBox(w, h) {
         dvd.vx = Math.abs(dvd.vx);
         pickColor();
     }
-
-    if (dvd.y + h >= canvas.height) {
-        dvd.y = canvas.height - h;
+    if (dvd.y + h >= RENDER_H) {
+        dvd.y = RENDER_H - h;
         dvd.vy = -Math.abs(dvd.vy);
         pickColor();
     } else if (dvd.y <= 0) {
