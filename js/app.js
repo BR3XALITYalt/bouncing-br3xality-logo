@@ -1,4 +1,4 @@
-let speed = 0.5;
+let speed = 1;
 let scale = 0.10;
 let canvas;
 let ctx;
@@ -7,8 +7,8 @@ let logoColor = '#ffffff';
 let dvd = {
     x: 200,
     y: 300,
-    xspeed: 10,
-    yspeed: 10,
+    xspeed: 5,
+    yspeed: 4.9,
     img: new Image()
 };
 
