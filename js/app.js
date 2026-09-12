@@ -1,9 +1,9 @@
-const RENDER_W = 480;
-const RENDER_H = 270;
+const RENDER_W = 720;
+const RENDER_H = 480;
 const speed = RENDER_W * 0.12;
-const scale = 0.10;
-const fadeAlpha = 0.05;
-const targetFPS = 30;
+const scale = 0.04;
+const fadePerSecond = 2.8;
+const targetFPS = 24;
 const frameInterval = 1000 / targetFPS;
 
 let canvas;
@@ -51,6 +51,8 @@ function update(now) {
 
     const w = dvd.img.width * scale;
     const h = dvd.img.height * scale;
+
+    const fadeAlpha = 1 - Math.exp(-fadePerSecond * dt);
 
     ctx.globalCompositeOperation = 'destination-out';
     ctx.fillStyle = `rgba(0, 0, 0, ${fadeAlpha})`;
