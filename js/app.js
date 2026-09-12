@@ -2,7 +2,7 @@ const RENDER_W = 480;
 const RENDER_H = 270;
 const speed = RENDER_W * 0.12;
 const scale = 0.10;
-const fadeAlpha = 0.12;
+const fadeAlpha = 0.05;
 const targetFPS = 30;
 const frameInterval = 1000 / targetFPS;
 
